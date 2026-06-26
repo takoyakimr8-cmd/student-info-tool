@@ -2,338 +2,926 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>経費管理ツール</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>生徒情報共有ツール</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#a6402f">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; background: #f5f5f5; color: #1a1a1a; }
-.header { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 1rem; text-align: center; }
-.header h1 { font-size: 18px; font-weight: 600; }
-.tabs { display: flex; background: #fff; border-bottom: 1px solid #e0e0e0; }
-.tab { flex: 1; padding: 12px 8px; text-align: center; font-size: 13px; cursor: pointer; border: none; background: transparent; color: #888; }
-.tab.active { color: #1a1a1a; border-bottom: 2px solid #1a1a1a; font-weight: 600; }
-.section { display: none; padding: 1rem; }
-.section.active { display: block; }
-.card { background: #fff; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; border: 1px solid #e8e8e8; }
-.field { margin-bottom: 14px; }
-.field label { font-size: 12px; color: #888; display: block; margin-bottom: 6px; }
-.field input, .field select, .field textarea { width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 15px; background: #fafafa; }
-.field textarea { height: 70px; resize: none; }
-.upload-area { border: 2px dashed #ccc; border-radius: 12px; padding: 2rem 1rem; text-align: center; cursor: pointer; background: #fafafa; }
-.upload-area p { font-size: 14px; color: #888; margin-top: 8px; }
-.btn { width: 100%; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; margin-top: 4px; }
-.btn-primary { background: #1a1a1a; color: #fff; }
-.btn-primary:active { opacity: 0.8; }
-.ai-result { background: #f8f8f8; border-radius: 10px; padding: 1rem; margin-top: 1rem; display: none; }
-.ai-result.show { display: block; }
-.loading { color: #888; font-size: 14px; text-align: center; padding: 1rem 0; }
-.summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
-.metric { background: #fff; border-radius: 12px; padding: 1rem; border: 1px solid #e8e8e8; }
-.metric .label { font-size: 11px; color: #888; }
-.metric .value { font-size: 20px; font-weight: 700; margin-top: 4px; }
-.metric .value.income { color: #0a7c5c; }
-.metric .value.expense { color: #c0392b; }
-.metric .value.profit { color: #1a1a1a; }
-.list-item { padding: 12px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: flex-start; }
-.list-item:last-child { border-bottom: none; }
-.item-left .category { font-size: 13px; font-weight: 600; }
-.item-left .note { font-size: 12px; color: #888; margin-top: 2px; }
-.item-left .date { font-size: 11px; color: #bbb; margin-top: 2px; }
-.item-right .amount { font-size: 15px; font-weight: 700; }
-.item-right .amount.income { color: #0a7c5c; }
-.item-right .amount.expense { color: #c0392b; }
-.badge { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 99px; margin-bottom: 4px; }
-.badge-expense { background: #fde8e8; color: #c0392b; }
-.badge-income { background: #e0f4ee; color: #0a7c5c; }
-#img-preview { width: 100%; border-radius: 10px; margin-top: 10px; display: none; }
-.month-selector { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-.month-selector button { background: #f0f0f0; border: none; border-radius: 8px; padding: 6px 14px; font-size: 14px; cursor: pointer; }
-.month-selector span { font-size: 15px; font-weight: 600; }
-.empty { text-align: center; color: #bbb; font-size: 14px; padding: 2rem 0; }
-.btn-export { background: #f0f0f0; color: #1a1a1a; margin-top: 8px; }
-.success-msg { background: #e0f4ee; color: #0a7c5c; border-radius: 8px; padding: 10px; text-align: center; font-size: 14px; margin-top: 8px; display: none; }
+:root{--ink:#2b2b28;--paper:#faf7f0;--line:#d8d2c2;--accent:#a6402f;--accent-soft:#f1e3d8;--mono:"Courier New",monospace;--muted:#8a8478;}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;padding:0;}
+
+/* ━━ ログイン画面 ━━ */
+#screen-login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+.login-box{background:#fff;border:1px solid var(--line);border-radius:8px;padding:40px 32px;width:100%;max-width:360px;}
+.login-box h1{font-size:1.2rem;margin:0 0 6px;}
+.login-box .sub{font-size:0.8rem;color:var(--muted);margin:0 0 28px;}
+.login-box .field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.login-box label{font-size:0.75rem;color:#777;}
+.login-box input{padding:9px 12px;border:1px solid var(--line);border-radius:4px;font-size:0.95rem;}
+.login-box .btn-row{display:flex;gap:8px;margin-top:8px;}
+.login-box button{flex:1;padding:10px;border:none;border-radius:4px;cursor:pointer;font-size:0.9rem;}
+.login-box .btn-primary{background:var(--accent);color:#fff;}
+.login-box .btn-secondary{background:#fff;color:var(--accent);border:1px solid var(--accent);}
+.login-err{color:#b33;font-size:0.8rem;margin-top:8px;min-height:18px;}
+
+/* ━━ 管理者ダッシュボード ━━ */
+#screen-admin{display:none;min-height:100vh;}
+.admin-header{background:var(--ink);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.admin-header h2{margin:0;font-size:1rem;font-weight:600;}
+.admin-header button{background:transparent;color:#ccc;border:1px solid #555;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:0.8rem;}
+.admin-header button:hover{color:#fff;border-color:#aaa;}
+.admin-body{display:flex;min-height:calc(100vh - 48px);}
+.client-list{width:220px;min-width:180px;background:#fff;border-right:1px solid var(--line);padding:12px 0;flex-shrink:0;}
+.client-list h3{font-size:0.72rem;color:var(--muted);letter-spacing:.08em;padding:0 16px;margin:0 0 8px;}
+.client-item{padding:9px 16px;cursor:pointer;font-size:0.88rem;border-left:3px solid transparent;display:flex;align-items:center;gap:8px;}
+.client-item:hover{background:var(--accent-soft);}
+.client-item.active{border-left-color:var(--accent);background:var(--accent-soft);font-weight:600;}
+.client-item .dot{width:8px;height:8px;border-radius:50%;background:#ccc;flex-shrink:0;}
+.client-item.active .dot{background:var(--accent);}
+.client-frame{flex:1;overflow:auto;}
+
+/* ━━ アプリ本体 ━━ */
+#screen-app{display:none;}
+.autosave-bar{position:fixed;top:0;left:0;right:0;background:#fff;border-bottom:1px solid var(--line);padding:0 16px;display:flex;flex-direction:column;font-size:0.78rem;color:var(--muted);z-index:100;}
+.autosave-bar .row1{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0 4px;border-bottom:1px solid #eee;}
+.autosave-bar .row2{display:flex;align-items:center;gap:8px;padding:4px 0;}
+.autosave-bar .saved{color:#4a8a4a;}
+.viewing-banner{background:var(--ink);color:#fff;text-align:center;font-size:0.8rem;padding:5px;letter-spacing:.03em;}
+.viewing-banner span{color:#f1e3d8;}
+.viewing-banner button{background:transparent;color:#ccc;border:1px solid #666;padding:2px 10px;border-radius:3px;margin-left:12px;cursor:pointer;font-size:0.78rem;}
+body.has-banner .autosave-bar{top:30px;}
+body{padding-top:76px;}
+body.has-banner{padding-top:106px;}
+h1{margin-top:0;}
+
+.wrap{max-width:860px;margin:0 auto;padding:24px 16px 80px;}
+.panel{background:#fff;border:1px solid var(--line);border-radius:6px;padding:20px;margin-bottom:20px;}
+.panel h2{font-size:0.95rem;margin:0 0 14px;color:var(--accent);letter-spacing:.05em;}
+.panel p.hint{font-size:0.78rem;color:var(--muted);margin:-8px 0 14px;}
+form{display:flex;gap:10px;flex-wrap:wrap;align-items:end;}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-size:0.75rem;color:#777;}
+.field input,.field select,.field textarea{padding:8px 10px;border:1px solid var(--line);border-radius:4px;font-size:0.9rem;width:140px;font-family:inherit;}
+.field.wide input{width:220px;}
+textarea{resize:vertical;min-height:44px;}
+button{background:var(--accent);color:#fff;border:none;padding:9px 16px;border-radius:4px;cursor:pointer;font-size:0.9rem;}
+button:hover{opacity:.9;}
+button.secondary{background:#fff;color:var(--accent);border:1px solid var(--accent);}
+button.del{background:transparent;color:#b33;border:1px solid #e3c3c3;padding:4px 10px;font-size:0.8rem;}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);padding:4px 10px;font-size:0.78rem;}
+button.reactivate{background:transparent;color:#4a8a4a;border:1px solid #b3d9b3;padding:4px 10px;font-size:0.78rem;border-radius:4px;cursor:pointer;}
+table{width:100%;border-collapse:collapse;margin-top:16px;}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);font-size:0.85rem;}
+th{color:#777;font-weight:600;font-size:0.72rem;letter-spacing:.04em;}
+td.num,th.num{text-align:right;font-family:var(--mono);}
+.empty{color:#999;font-size:0.85rem;padding:14px 0;}
+.summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.stat{background:var(--accent-soft);border-radius:6px;padding:14px;}
+.stat .label{font-size:0.75rem;color:#7a5142;}
+.stat .value{font-size:1.4rem;font-family:var(--mono);margin-top:4px;}
+.weeks-row{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:0.85rem;color:#666;flex-wrap:wrap;}
+.weeks-row input{width:60px;padding:4px 6px;}
+.detail-row td{background:#fbf8f2;padding:16px;border-bottom:2px solid var(--line);}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:14px;}
+.detail-grid .field{width:100%;}
+.detail-grid .field input,.detail-grid .field select,.detail-grid .field textarea{width:100%;}
+.neg-table{width:100%;font-size:0.8rem;margin-top:6px;}
+.neg-table th,.neg-table td{padding:5px 4px;}
+.neg-add{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin-top:8px;}
+.neg-add .field input{width:110px;}
+.section-label{font-size:0.78rem;color:var(--muted);margin:14px 0 4px;font-weight:600;}
+.goal-output table{margin-top:14px;}
+.goal-gap{margin-top:14px;font-size:0.88rem;background:var(--accent-soft);border-radius:6px;padding:12px 14px;}
+.save-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.diff-up{color:#4a8a4a;font-size:0.78rem;}
+.diff-down{color:#b33;font-size:0.78rem;}
+.diff-eq{color:#aaa;font-size:0.78rem;}
+.record-date{font-size:0.82rem;color:var(--muted);}
+.inactive-section summary{cursor:pointer;font-size:0.85rem;color:var(--muted);padding:8px 0;user-select:none;}
+tr.inactive td{color:#aaa;}
+tr.inactive td.name{text-decoration:line-through;}
+.sync-status{font-size:0.72rem;color:var(--muted);}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
-<div class="header">
-  <h1>📊 経費管理</h1>
-</div>
-
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('receipt')">📷 レシート</button>
-  <button class="tab" onclick="switchTab('income')">💰 収入</button>
-  <button class="tab" onclick="switchTab('summary')">📈 集計</button>
-</div>
-
-<div id="receipt" class="section active">
-  <div class="card">
-    <div class="upload-area" onclick="document.getElementById('file-input').click()">
-      <div style="font-size:40px">📸</div>
-      <p>レシートの写真をタップ</p>
-      <p style="font-size:12px; margin-top:4px;">AIが自動で読み取ります</p>
+<!-- ━━ ログイン画面 ━━ -->
+<div id="screen-login">
+  <div class="login-box">
+    <h1>生徒情報共有ツール</h1>
+    <p class="sub">ログインしてください</p>
+    <div class="field">
+      <label>メールアドレス</label>
+      <input type="email" id="login-email" autocomplete="email">
     </div>
-    <input type="file" id="file-input" accept="image/*" capture="environment" style="display:none" onchange="handleImage(event)">
-    <img id="img-preview" alt="レシートプレビュー">
-    
-    <div class="ai-result" id="ai-result">
-      <div class="loading" id="ai-loading">🤖 AIが読み取り中...</div>
-      <div id="ai-data" style="display:none">
-        <div class="field">
-          <label>日付</label>
-          <input type="date" id="r-date">
-        </div>
-        <div class="field">
-          <label>金額（円）</label>
-          <input type="number" id="r-amount" placeholder="例: 1200">
-        </div>
-        <div class="field">
-          <label>種別</label>
-          <select id="r-category">
-            <option>カフェ・食事代</option>
-            <option>交通費</option>
-            <option>接待交際費</option>
-            <option>通信費</option>
-            <option>教材費</option>
-            <option>お土産・プレゼント</option>
-            <option>その他</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>誰と / 何のため</label>
-          <input type="text" id="r-note" placeholder="例: Aさんとレッスン60分">
-        </div>
-        <button class="btn btn-primary" onclick="saveExpense()">保存する</button>
-        <div class="success-msg" id="expense-success">✅ 保存しました！</div>
+    <div class="field">
+      <label>パスワード</label>
+      <input type="password" id="login-password" autocomplete="current-password">
+    </div>
+    <div class="btn-row">
+      <button class="btn-primary" id="btn-login">ログイン</button>
+      <button class="btn-secondary" id="btn-signup">新規登録</button>
+    </div>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- ━━ 管理者ダッシュボード ━━ -->
+<div id="screen-admin">
+  <div class="admin-header">
+    <h2>🗂 管理者ダッシュボード</h2>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span id="admin-name" style="font-size:0.8rem;color:#aaa"></span>
+      <button id="btn-admin-logout">ログアウト</button>
+    </div>
+  </div>
+  <div class="admin-body">
+    <div class="client-list">
+      <h3>クライアント一覧</h3>
+      <div id="client-list-items"></div>
+    </div>
+    <div class="client-frame" id="client-frame">
+      <div style="padding:40px;color:var(--muted);font-size:0.9rem;">
+        左のリストからクライアントを選んでください
       </div>
     </div>
   </div>
 </div>
 
-<div id="income" class="section">
-  <div class="card">
-    <div class="field">
-      <label>日付</label>
-      <input type="date" id="i-date">
+<!-- ━━ アプリ本体 ━━ -->
+<div id="screen-app">
+  <div id="viewing-banner" style="display:none" class="viewing-banner">
+    <span id="viewing-name"></span> のデータを閲覧中
+    <button id="btn-back-admin">← 管理者画面に戻る</button>
+  </div>
+
+  <div class="autosave-bar">
+    <div class="row1">
+      <span class="saved" id="autosave-status">—</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="sync-status" id="sync-status"></span>
+        <button class="secondary" id="btn-dl" style="font-size:0.78rem;padding:4px 12px">📥 ダウンロード</button>
+        <button id="btn-share" style="font-size:0.78rem;padding:4px 12px">📤 共有</button>
+        <button class="secondary" id="btn-logout" style="font-size:0.78rem;padding:4px 10px">ログアウト</button>
+      </div>
     </div>
-    <div class="field">
-      <label>収入源</label>
-      <select id="i-source">
-        <option>Stripe（レッスン・ツアー）</option>
-        <option>銀行振込（営業）</option>
-        <option>現金（現地レッスン）</option>
-        <option>その他</option>
-      </select>
+    <div class="row2" id="user-info-bar" style="font-size:0.75rem;color:var(--muted);padding:4px 0;"></div>
+  </div>
+
+  <div class="wrap">
+    <h1>生徒情報共有ツール</h1>
+
+    <div class="panel">
+      <h2>生徒を追加</h2>
+      <p class="hint">基本情報のみ。詳細は追加後に各行の「詳細」から入力できます。</p>
+      <form id="add-form">
+        <div class="field"><label>生徒名</label><input type="text" id="in-name" required></div>
+        <div class="field"><label>レッスン単価 ($)</label><input type="number" id="in-fee" step="0.01" min="0" required></div>
+        <div class="field"><label>レッスン時間(分)</label><input type="number" id="in-minutes" step="1" min="1" placeholder="25 / 50" required></div>
+        <div class="field"><label>月のレッスン数</label><input type="number" id="in-lessons" step="1" min="0" value="8" required></div>
+        <button type="submit">追加</button>
+      </form>
     </div>
-    <div class="field">
-      <label>金額（円）</label>
-      <input type="number" id="i-amount" placeholder="例: 200000">
+
+    <details class="panel" id="student-list-panel" open>
+      <summary style="cursor:pointer;font-size:0.95rem;color:var(--accent);letter-spacing:.05em;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px;">
+        <span>▾</span> 生徒一覧 &nbsp;<span id="list-count-badge" style="font-size:0.78rem;font-weight:normal;color:var(--muted)"></span>
+      </summary>
+      <table style="margin-top:14px">
+        <thead><tr>
+          <th>生徒名</th><th class="num">単価($)</th><th class="num">時間(分)</th>
+          <th class="num">$/分</th><th class="num">月レッスン数</th><th class="num">月額($)</th>
+          <th></th><th></th><th></th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <p class="empty" id="empty-msg">まだ生徒が登録されていません。</p>
+    </details>
+
+    <div class="panel">
+      <h2>収益サマリー</h2>
+      <div class="summary-grid">
+        <div class="stat"><div class="label">アクティブ生徒数</div><div class="value" id="sum-count">0</div></div>
+        <div class="stat"><div class="label">月間合計収益</div><div class="value" id="sum-monthly">$0</div></div>
+        <div class="stat"><div class="label">平均単価(単純平均)</div><div class="value" id="sum-avg">$0</div></div>
+        <div class="stat"><div class="label">加重平均単価</div><div class="value" id="sum-wavg">$0</div></div>
+      </div>
+      <div class="weeks-row">
+        週あたり予想収益(月の収益 ÷ <input type="number" id="in-weeks" value="4" step="0.1" min="1"> 週) = <strong id="sum-weekly">$0</strong>
+      </div>
     </div>
-    <div class="field">
-      <label>メモ</label>
-      <input type="text" id="i-note" placeholder="例: 6月分Stripe振込">
+
+    <div class="panel">
+      <h2>目標から逆算</h2>
+      <p class="hint">「もし1レッスン◯ドルで教えたら、目標達成に何人必要か」を単価ごとに比較します。</p>
+      <form id="goal-form">
+        <div class="field"><label>目標金額</label><input type="number" id="goal-amount" step="1" min="0" value="500"></div>
+        <div class="field"><label>通貨</label>
+          <select id="goal-currency"><option value="USD">$ ドル</option><option value="JPY">¥ 円</option></select>
+        </div>
+        <div class="field"><label>為替レート(1ドル=◯円)</label><input type="number" id="goal-rate" step="0.1" min="1" value="155"></div>
+        <div class="field"><label>月の標準レッスン数</label><input type="number" id="goal-lessons" step="1" min="1" value="4"></div>
+        <div class="field"><label>あと何人必要か計算する単価($)</label><input type="number" id="goal-assumed-fee" step="0.01" min="0" placeholder="例: 20"></div>
+        <button type="button" id="btn-calc-goal">更新</button>
+      </form>
+      <div class="goal-output">
+        <table>
+          <thead><tr><th class="num">1レッスンの金額($)</th><th class="num">必要な生徒数</th><th class="num">月の合計レッスン数</th></tr></thead>
+          <tbody id="goal-rows"></tbody>
+        </table>
+        <div class="goal-gap" id="goal-gap"></div>
+      </div>
     </div>
-    <button class="btn btn-primary" onclick="saveIncome()">保存する</button>
-    <div class="success-msg" id="income-success">✅ 保存しました！</div>
+
+    <div class="panel" id="monthly-panel">
+      <h2>月次記録</h2>
+      <p class="hint">「今月を記録」を押すと収益スナップショットを保存します。前の月と比べて変化を確認できます。</p>
+      <div style="display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+        <div class="field"><label>記録する年月</label><input type="month" id="snap-month"></div>
+        <button id="btn-snap">今月を記録</button>
+      </div>
+      <table id="snap-table" style="display:none">
+        <thead><tr>
+          <th>年月</th><th class="num">生徒数</th><th class="num">月収($)</th>
+          <th class="num">平均単価($)</th><th class="num">前月比 生徒数</th><th class="num">前月比 月収</th><th></th>
+        </tr></thead>
+        <tbody id="snap-rows"></tbody>
+      </table>
+      <p class="empty" id="snap-empty">まだ記録がありません。</p>
+      <div id="chart-area" style="display:none;margin-top:24px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <div style="font-size:0.78rem;color:var(--muted);margin-bottom:6px;text-align:center">月収推移 ($)</div>
+            <canvas id="chart-revenue" height="160"></canvas>
+          </div>
+          <div>
+            <div style="font-size:0.78rem;color:var(--muted);margin-bottom:6px;text-align:center">生徒数推移 (名)</div>
+            <canvas id="chart-count" height="160"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <details class="panel inactive-section" id="inactive-section">
+      <summary>▸ 卒業・退会した生徒 (<span id="inactive-count">0</span>名)</summary>
+      <table style="margin-top:12px">
+        <thead><tr><th>生徒名</th><th class="num">最終単価($)</th><th class="num">時間(分)</th><th>退会日</th><th></th></tr></thead>
+        <tbody id="inactive-rows"></tbody>
+      </table>
+      <p class="empty" id="inactive-empty">まだ退会した生徒はいません。</p>
+    </details>
   </div>
 </div>
 
-<div id="summary" class="section">
-  <div class="month-selector">
-    <button onclick="changeMonth(-1)">◀</button>
-    <span id="month-label"></span>
-    <button onclick="changeMonth(1)">▶</button>
-  </div>
-  <div class="summary-grid">
-    <div class="metric" style="grid-column: 1/-1">
-      <div class="label">利益（収入 − 経費）</div>
-      <div class="value profit" id="total-profit">¥0</div>
-    </div>
-    <div class="metric">
-      <div class="label">収入</div>
-      <div class="value income" id="total-income">¥0</div>
-    </div>
-    <div class="metric">
-      <div class="label">経費</div>
-      <div class="value expense" id="total-expense">¥0</div>
-    </div>
-  </div>
-  <div class="card">
-    <div id="entries-list"></div>
-  </div>
-  <button class="btn btn-export" onclick="exportCSV()">📥 CSVダウンロード</button>
-</div>
+<!-- Firebase SDK (モジュール形式) -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+         signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection,
+         getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-<script>
-let entries = JSON.parse(localStorage.getItem('keihiEntries') || '[]');
-let currentMonth = new Date();
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  ★ ここにFirebaseの設定を貼り付けてください ★
+//  Firebase Console → プロジェクト設定 → マイアプリ → CDN
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const firebaseConfig = {
+  apiKey:            "AIzaSyBNbOfcSIjgXuPXlDt5B2_ksUcBoCRlo8U",
+  authDomain:        "student-info-tool.firebaseapp.com",
+  projectId:         "student-info-tool",
+  storageBucket:     "student-info-tool.firebasestorage.app",
+  messagingSenderId: "545050196777",
+  appId:             "1:545050196777:web:b03bcd194473c688d89538"
+};
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function switchTab(tab) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-  document.getElementById(tab).classList.add('active');
-  if (tab === 'summary') renderSummary();
-}
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
 
-async function handleImage(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const preview = document.getElementById('img-preview');
-  preview.src = URL.createObjectURL(file);
-  preview.style.display = 'block';
-  const result = document.getElementById('ai-result');
-  result.classList.add('show');
-  document.getElementById('ai-loading').style.display = 'block';
-  document.getElementById('ai-data').style.display = 'none';
+// ── 状態変数 ──
+let currentUser = null;      // 現在ログイン中のFirebase Userオブジェクト
+let currentUserRole = null;  // 'admin' | 'client'
+let viewingUid = null;       // 管理者が閲覧中のクライアントUID(通常はnull)
+let viewingName = '';
 
-  const base64 = await new Promise(res => {
-    const reader = new FileReader();
-    reader.onload = () => res(reader.result.split(',')[1]);
-    reader.readAsDataURL(file);
+// アプリのデータ(Firestoreから読み込んでメモリに保持)
+let students  = [];
+let snapshots = [];
+
+// 保存タイマー(入力のたびにFirestoreへ書き込まないようデバウンス)
+let saveTimer = null;
+
+// ── Firestore読み書き ──
+function targetUid() { return viewingUid || currentUser?.uid; }
+
+async function loadData() {
+  const uid = targetUid();
+  if (!uid) return;
+  const snap = await getDoc(doc(db, 'userData', uid));
+  const d = snap.exists() ? snap.data() : {};
+  students  = d.students  || [];
+  snapshots = d.snapshots || [];
+
+  // 既存データへの移行: 必須フィールドを補完
+  students.forEach(s => {
+    if (!s.id)           s.id = makeId();
+    if (!s.negotiations) s.negotiations = [];
+    if (!s.status)       s.status = 'active';
   });
 
+  loadGoalFromData(d.goal || null);
+  render();
+  renderSnapshots();
+}
+
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(flushSave, 1200);
+  document.getElementById('sync-status').textContent = '保存中…';
+}
+
+async function flushSave() {
+  const uid = targetUid();
+  if (!uid) return;
+  const goal = readGoalFields();
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: file.type, data: base64 } },
-            { type: 'text', text: 'このレシートから日付、金額、店名を読み取ってください。JSON形式のみで返してください。例: {"date":"2026-06-24","amount":1200,"shop":"スターバックス"} 読み取れない場合はnullを入れてください。JSONのみ返してください。' }
-          ]
-        }]
-      })
+    await setDoc(doc(db, 'userData', uid), { students, snapshots, goal, updatedAt: new Date().toISOString() });
+    const t = new Date().toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' });
+    document.getElementById('autosave-status').textContent = '✓ 保存済み ' + t;
+    document.getElementById('sync-status').textContent = '☁ クラウド同期済み';
+  } catch(e) {
+    document.getElementById('sync-status').textContent = '⚠ 保存失敗';
+  }
+}
+
+function readGoalFields() {
+  return {
+    amount:      document.getElementById('goal-amount').value,
+    currency:    document.getElementById('goal-currency').value,
+    rate:        document.getElementById('goal-rate').value,
+    lessons:     document.getElementById('goal-lessons').value,
+    assumedFee:  document.getElementById('goal-assumed-fee').value,
+    weeks:       document.getElementById('in-weeks').value
+  };
+}
+
+function loadGoalFromData(g) {
+  if (!g) return;
+  if (g.amount)     document.getElementById('goal-amount').value     = g.amount;
+  if (g.currency)   document.getElementById('goal-currency').value   = g.currency;
+  if (g.rate)       document.getElementById('goal-rate').value       = g.rate;
+  if (g.lessons)    document.getElementById('goal-lessons').value    = g.lessons;
+  if (g.assumedFee) document.getElementById('goal-assumed-fee').value= g.assumedFee;
+  if (g.weeks)      document.getElementById('in-weeks').value        = g.weeks;
+}
+
+// ── ログイン処理 ──
+document.getElementById('btn-login').addEventListener('click', async () => {
+  const email = document.getElementById('login-email').value.trim();
+  const pw    = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-err');
+  errEl.textContent = '';
+  try {
+    await signInWithEmailAndPassword(auth, email, pw);
+  } catch(e) {
+    errEl.textContent = 'ログインに失敗しました: ' + friendlyError(e.code);
+  }
+});
+
+document.getElementById('btn-signup').addEventListener('click', async () => {
+  const email = document.getElementById('login-email').value.trim();
+  const pw    = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-err');
+  errEl.textContent = '';
+  if (pw.length < 6) { errEl.textContent = 'パスワードは6文字以上にしてください'; return; }
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pw);
+    // 新規ユーザーのプロファイルをFirestoreに作成(ロールはclient)
+    await setDoc(doc(db, 'users', cred.user.uid), {
+      email, displayName: email.split('@')[0], role: 'client', createdAt: new Date().toISOString()
     });
-    const data = await resp.json();
-    const text = data.content[0].text.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(text);
-    document.getElementById('r-date').value = parsed.date || today();
-    document.getElementById('r-amount').value = parsed.amount || '';
-    document.getElementById('r-note').value = parsed.shop ? parsed.shop + 'にて' : '';
-  } catch(err) {
-    document.getElementById('r-date').value = today();
+  } catch(e) {
+    errEl.textContent = '登録に失敗しました: ' + friendlyError(e.code);
+  }
+});
+
+function friendlyError(code) {
+  const map = {
+    'auth/user-not-found':     'メールアドレスが見つかりません',
+    'auth/wrong-password':     'パスワードが違います',
+    'auth/invalid-email':      'メールアドレスの形式が正しくありません',
+    'auth/email-already-in-use':'このメールアドレスはすでに使われています',
+    'auth/invalid-credential': 'メールアドレスまたはパスワードが違います'
+  };
+  return map[code] || code;
+}
+
+// ── 認証状態の変化を監視 ──
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    // 未ログイン → ログイン画面へ
+    showScreen('login');
+    return;
+  }
+  currentUser = user;
+  viewingUid  = null;
+  viewingName = '';
+
+  // ユーザーのロールを取得
+  const profileSnap = await getDoc(doc(db, 'users', user.uid));
+  currentUserRole = profileSnap.exists() ? (profileSnap.data().role || 'client') : 'client';
+
+  if (currentUserRole === 'admin') {
+    // 管理者 → 管理者ダッシュボードへ
+    document.getElementById('admin-name').textContent = user.email;
+    await loadClientList();
+    showScreen('admin');
+  } else {
+    // 一般クライアント → アプリへ
+    showAppForUser(user.email, null);
+  }
+});
+
+async function showAppForUser(emailLabel, adminViewingUid) {
+  viewingUid  = adminViewingUid;
+  viewingName = emailLabel;
+
+  const banner = document.getElementById('viewing-banner');
+  if (adminViewingUid) {
+    document.getElementById('viewing-name').textContent = emailLabel;
+    banner.style.display = 'block';
+    document.body.classList.add('has-banner');
+  } else {
+    banner.style.display = 'none';
+    document.body.classList.remove('has-banner');
   }
 
-  document.getElementById('ai-loading').style.display = 'none';
-  document.getElementById('ai-data').style.display = 'block';
+  document.getElementById('user-info-bar').textContent =
+    (adminViewingUid ? '管理者として閲覧: ' : 'ログイン中: ') + emailLabel;
+
+  showScreen('app');
+  await loadData();
 }
 
-function today() {
-  return new Date().toISOString().split('T')[0];
-}
-
-function saveExpense() {
-  const amount = parseInt(document.getElementById('r-amount').value);
-  if (!amount) { alert('金額を入力してください'); return; }
-  entries.push({
-    type: 'expense',
-    date: document.getElementById('r-date').value || today(),
-    amount: amount,
-    category: document.getElementById('r-category').value,
-    note: document.getElementById('r-note').value,
-    id: Date.now()
+// ── 管理者: クライアント一覧を読み込む ──
+async function loadClientList() {
+  const querySnap = await getDocs(collection(db, 'users'));
+  const listEl = document.getElementById('client-list-items');
+  listEl.innerHTML = '';
+  querySnap.forEach(docSnap => {
+    const d = docSnap.data();
+    if (d.role === 'admin') return; // 管理者自身は除外
+    const item = document.createElement('div');
+    item.className = 'client-item';
+    item.dataset.uid   = docSnap.id;
+    item.dataset.email = d.email || '';
+    item.dataset.name  = d.displayName || d.email || docSnap.id;
+    item.innerHTML = `<span class="dot"></span>${item.dataset.name}`;
+    item.addEventListener('click', async () => {
+      document.querySelectorAll('.client-item').forEach(el => el.classList.remove('active'));
+      item.classList.add('active');
+      // 管理者ダッシュボードを閉じてアプリ画面でそのクライアントのデータを表示
+      showScreen('app');
+      await showAppForUser(item.dataset.name, item.dataset.uid);
+    });
+    listEl.appendChild(item);
   });
-  save();
-  document.getElementById('ai-result').classList.remove('show');
-  document.getElementById('img-preview').style.display = 'none';
-  document.getElementById('file-input').value = '';
-  document.getElementById('r-amount').value = '';
-  document.getElementById('r-note').value = '';
-  showSuccess('expense-success');
 }
 
-function saveIncome() {
-  const amount = parseInt(document.getElementById('i-amount').value);
-  if (!amount) { alert('金額を入力してください'); return; }
-  entries.push({
-    type: 'income',
-    date: document.getElementById('i-date').value || today(),
-    amount: amount,
-    category: document.getElementById('i-source').value,
-    note: document.getElementById('i-note').value,
-    id: Date.now()
+// 管理者画面に戻るボタン
+document.getElementById('btn-back-admin').addEventListener('click', () => {
+  viewingUid  = null;
+  viewingName = '';
+  document.getElementById('viewing-banner').style.display = 'none';
+  document.body.classList.remove('has-banner');
+  showScreen('admin');
+});
+
+// ログアウトボタン (アプリ画面)
+document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
+document.getElementById('btn-admin-logout').addEventListener('click', () => signOut(auth));
+
+// ── 画面切り替え ──
+function showScreen(name) {
+  ['login','admin','app'].forEach(s => {
+    document.getElementById('screen-' + s).style.display = s === name ? '' : 'none';
   });
-  save();
-  document.getElementById('i-amount').value = '';
-  document.getElementById('i-note').value = '';
-  showSuccess('income-success');
 }
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 以下、アプリのロジック (既存と同じ; saveのみFirestoreへ)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let openDetails    = new Set();
+let editingStudents = new Set();
+
+function makeId() { return 'sid-' + Date.now() + '-' + Math.floor(Math.random()*10000); }
 
 function save() {
-  localStorage.setItem('keihiEntries', JSON.stringify(entries));
+  const t = new Date().toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' });
+  document.getElementById('autosave-status').textContent = '✓ 自動保存済み ' + t;
+  scheduleSave();
 }
 
-function showSuccess(id) {
-  const el = document.getElementById(id);
-  el.style.display = 'block';
-  setTimeout(() => el.style.display = 'none', 2000);
+// 生徒追加フォーム
+document.getElementById('add-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const name    = document.getElementById('in-name').value.trim();
+  const fee     = parseFloat(document.getElementById('in-fee').value);
+  const minutes = parseFloat(document.getElementById('in-minutes').value);
+  const lessons = parseFloat(document.getElementById('in-lessons').value);
+  if (!name || isNaN(fee) || isNaN(minutes) || isNaN(lessons)) return;
+  students.push({ id: makeId(), name, fee, minutes, lessons,
+    country:'', dateStart:'', interests:'', occupation:'', curriculum:'',
+    negotiations:[], status:'active' });
+  e.target.reset();
+  document.getElementById('in-lessons').value = 8;
+  render();
+});
+
+document.getElementById('in-weeks').addEventListener('input', () => { renderSummary(); scheduleSave(); });
+
+function removeStudent(id) {
+  students = students.filter(s => s.id !== id);
+  openDetails.delete(id);
+  render();
 }
 
-function changeMonth(dir) {
-  currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + dir, 1);
-  renderSummary();
+function toggleDetail(id) {
+  openDetails.has(id) ? openDetails.delete(id) : openDetails.add(id);
+  renderRows();
+}
+
+function toggleEdit(id) {
+  editingStudents.has(id) ? editingStudents.delete(id) : editingStudents.add(id);
+  renderRows();
+}
+
+function saveEdit(id) {
+  const s = students.find(s => s.id === id);
+  if (!s) return;
+  const name    = document.getElementById('edit-name-' + id).value.trim();
+  const fee     = parseFloat(document.getElementById('edit-fee-' + id).value);
+  const minutes = parseFloat(document.getElementById('edit-min-' + id).value);
+  const lessons = parseFloat(document.getElementById('edit-les-' + id).value);
+  if (!name || isNaN(fee) || isNaN(minutes) || isNaN(lessons)) return;
+  Object.assign(s, { name, fee, minutes, lessons });
+  editingStudents.delete(id);
+  render();
+}
+
+function cancelEdit(id) { editingStudents.delete(id); renderRows(); }
+
+function updateField(id, field, value) {
+  const s = students.find(s => s.id === id);
+  if (!s) return;
+  s[field] = value;
+  save();
+}
+
+function quitStudent(id) {
+  const s = students.find(s => s.id === id);
+  if (!s) return;
+  const dateStr = new Date().toISOString().slice(0,10);
+  if (!confirm(s.name + ' を退会済みにしますか？\n(退会日: ' + dateStr + ')')) return;
+  s.status = 'inactive';
+  s.dateQuit = dateStr;
+  openDetails.delete(id);
+  render();
+}
+
+function reactivateStudent(id) {
+  const s = students.find(s => s.id === id);
+  if (!s) return;
+  s.status = 'active';
+  s.dateQuit = '';
+  render();
+}
+
+function addNegotiation(id) {
+  const s = students.find(s => s.id === id);
+  if (!s) return;
+  const date   = document.getElementById('neg-date-' + id).value;
+  const from   = parseFloat(document.getElementById('neg-from-' + id).value);
+  const to     = parseFloat(document.getElementById('neg-to-' + id).value);
+  const reason = document.getElementById('neg-reason-' + id).value.trim();
+  if (!date || isNaN(from) || isNaN(to)) return;
+  s.negotiations.push({ date, from, to, reason });
+  save();
+  renderRows();
+}
+
+function removeNegotiation(id, idx) {
+  const s = students.find(s => s.id === id);
+  if (!s) return;
+  s.negotiations.splice(idx, 1);
+  save();
+  renderRows();
+}
+
+function escapeHtml(str) {
+  return (str||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+}
+function escapeAttr(str) { return (str||'').replace(/"/g, '&quot;'); }
+
+function renderRows() {
+  const rowsEl = document.getElementById('rows');
+  const emptyMsg = document.getElementById('empty-msg');
+  rowsEl.innerHTML = '';
+  const active   = students.filter(s => s.status !== 'inactive');
+  const inactive = students.filter(s => s.status === 'inactive');
+  emptyMsg.style.display = active.length ? 'none' : 'block';
+
+  active.forEach(s => {
+    const monthly    = s.fee * s.lessons;
+    const perMinute  = s.minutes ? s.fee / s.minutes : 0;
+    const tr = document.createElement('tr');
+
+    if (editingStudents.has(s.id)) {
+      tr.innerHTML = `
+        <td><input id="edit-name-${s.id}" value="${escapeAttr(s.name)}" style="width:90px;padding:3px 6px;font-size:.85rem;border:1px solid var(--accent);border-radius:4px"></td>
+        <td class="num"><input id="edit-fee-${s.id}" type="number" step="0.01" value="${s.fee}" style="width:64px;padding:3px 6px;font-size:.85rem;border:1px solid var(--accent);border-radius:4px"></td>
+        <td class="num"><input id="edit-min-${s.id}" type="number" step="1" value="${s.minutes}" style="width:54px;padding:3px 6px;font-size:.85rem;border:1px solid var(--accent);border-radius:4px"></td>
+        <td class="num" style="color:#aaa">—</td>
+        <td class="num"><input id="edit-les-${s.id}" type="number" step="1" value="${s.lessons}" style="width:54px;padding:3px 6px;font-size:.85rem;border:1px solid var(--accent);border-radius:4px"></td>
+        <td class="num" style="color:#aaa">—</td>
+        <td><button onclick="window._saveEdit('${s.id}')" style="background:#4a8a4a;color:#fff;border:none;padding:4px 10px;border-radius:4px;font-size:.78rem;cursor:pointer">保存</button></td>
+        <td><button class="ghost" onclick="window._cancelEdit('${s.id}')">取消</button></td>
+        <td></td>`;
+    } else {
+      tr.innerHTML = `
+        <td>${escapeHtml(s.name)}</td>
+        <td class="num">${s.fee.toFixed(2)}</td>
+        <td class="num">${s.minutes}</td>
+        <td class="num">${perMinute.toFixed(2)}</td>
+        <td class="num">${s.lessons}</td>
+        <td class="num">${monthly.toFixed(2)}</td>
+        <td><button class="ghost" onclick="window._toggleEdit('${s.id}')">編集</button></td>
+        <td><button class="ghost" onclick="window._toggleDetail('${s.id}')">${openDetails.has(s.id)?'閉じる':'詳細'}</button></td>
+        <td><button class="del" style="color:#c07000;border-color:#e8d5b0" onclick="window._quit('${s.id}')">辞めた</button></td>`;
+    }
+    rowsEl.appendChild(tr);
+
+    if (openDetails.has(s.id)) {
+      const dtr = document.createElement('tr');
+      dtr.className = 'detail-row';
+      const negRows = s.negotiations.map((n,i) => `<tr>
+        <td>${n.date}</td><td class="num">$${n.from.toFixed(2)}</td><td class="num">$${n.to.toFixed(2)}</td>
+        <td style="font-size:.8rem;color:var(--muted)">${escapeHtml(n.reason||'')}</td>
+        <td><button class="ghost" onclick="window._removeNeg('${s.id}',${i})">削除</button></td></tr>`).join('');
+      dtr.innerHTML = `<td colspan="9"><div class="detail-grid">
+        <div class="field"><label>国籍</label><input type="text" value="${escapeAttr(s.country)}" onblur="window._update('${s.id}','country',this.value)"></div>
+        <div class="field"><label>開始日</label><input type="date" value="${s.dateStart}" onblur="window._update('${s.id}','dateStart',this.value)"></div>
+        <div class="field"><label>職業</label><input type="text" value="${escapeAttr(s.occupation)}" onblur="window._update('${s.id}','occupation',this.value)"></div>
+        <div class="field" style="grid-column:1/-1"><label>興味・トピック</label><textarea onblur="window._update('${s.id}','interests',this.value)">${escapeHtml(s.interests)}</textarea></div>
+        <div class="field" style="grid-column:1/-1"><label>カリキュラム</label><textarea onblur="window._update('${s.id}','curriculum',this.value)">${escapeHtml(s.curriculum)}</textarea></div>
+      </div>
+      <div class="section-label">価格交渉の履歴</div>
+      ${s.negotiations.length ? `<table class="neg-table"><thead><tr><th>日付</th><th class="num">変更前</th><th class="num">変更後</th><th>理由メモ</th><th></th></tr></thead><tbody>${negRows}</tbody></table>` : '<p class="hint" style="margin:4px 0">まだ記録がありません。</p>'}
+      <div class="neg-add">
+        <div class="field"><label>日付</label><input type="date" id="neg-date-${s.id}"></div>
+        <div class="field"><label>変更前($)</label><input type="number" step="0.01" id="neg-from-${s.id}"></div>
+        <div class="field"><label>変更後($)</label><input type="number" step="0.01" id="neg-to-${s.id}"></div>
+        <div class="field" style="flex:1;min-width:160px"><label>理由メモ(任意)</label><input type="text" id="neg-reason-${s.id}" placeholder="例: 継続割引"></div>
+        <button class="secondary" onclick="window._addNeg('${s.id}')">記録を追加</button>
+      </div></td>`;
+      rowsEl.appendChild(dtr);
+    }
+  });
+
+  // 退会済み生徒
+  const inactiveRowsEl = document.getElementById('inactive-rows');
+  document.getElementById('inactive-count').textContent = inactive.length;
+  document.getElementById('inactive-empty').style.display = inactive.length ? 'none' : 'block';
+  inactiveRowsEl.innerHTML = inactive.map(s => `<tr class="inactive">
+    <td class="name">${escapeHtml(s.name)}</td><td class="num">$${s.fee.toFixed(2)}</td>
+    <td class="num">${s.minutes}分</td><td>${s.dateQuit||'—'}</td>
+    <td><button class="reactivate" onclick="window._reactivate('${s.id}')">復帰</button>
+        <button class="del" style="margin-left:4px" onclick="window._remove('${s.id}')">削除</button></td>
+  </tr>`).join('');
 }
 
 function renderSummary() {
-  const y = currentMonth.getFullYear();
-  const m = currentMonth.getMonth();
-  document.getElementById('month-label').textContent = y + '年' + (m+1) + '月';
-  
-  const filtered = entries.filter(e => {
-    if (!e.date) return false;
-    const d = new Date(e.date);
-    return d.getFullYear() === y && d.getMonth() === m;
-  });
+  const active = students.filter(s => s.status !== 'inactive');
+  const count  = active.length;
+  const totalMonthly = active.reduce((sum,s) => sum + s.fee*s.lessons, 0);
+  const totalLessons = active.reduce((sum,s) => sum + s.lessons, 0);
+  const avgFee  = count ? active.reduce((sum,s) => sum+s.fee, 0)/count : 0;
+  const wAvgFee = totalLessons ? totalMonthly/totalLessons : 0;
+  const weeks   = parseFloat(document.getElementById('in-weeks').value) || 4;
+  const weekly  = totalMonthly / weeks;
+  document.getElementById('sum-count').textContent   = count;
+  document.getElementById('sum-monthly').textContent = '$' + totalMonthly.toFixed(2);
+  document.getElementById('sum-avg').textContent     = '$' + avgFee.toFixed(2);
+  document.getElementById('sum-wavg').textContent    = '$' + wAvgFee.toFixed(2);
+  document.getElementById('sum-weekly').textContent  = '$' + weekly.toFixed(2);
+  const badge = document.getElementById('list-count-badge');
+  if (badge) badge.textContent = count + '名';
+  return { count, totalMonthly, avgFee, wAvgFee, weekly };
+}
 
-  const income = filtered.filter(e => e.type === 'income').reduce((s,e) => s+e.amount, 0);
-  const expense = filtered.filter(e => e.type === 'expense').reduce((s,e) => s+e.amount, 0);
-  
-  document.getElementById('total-income').textContent = '¥' + income.toLocaleString();
-  document.getElementById('total-expense').textContent = '¥' + expense.toLocaleString();
-  document.getElementById('total-profit').textContent = '¥' + (income - expense).toLocaleString();
-
-  const list = document.getElementById('entries-list');
-  const sorted = [...filtered].sort((a,b) => b.date.localeCompare(a.date));
-  
-  if (sorted.length === 0) {
-    list.innerHTML = '<div class="empty">記録がありません</div>';
+function renderGoal() {
+  const amount   = parseFloat(document.getElementById('goal-amount').value) || 0;
+  const currency = document.getElementById('goal-currency').value;
+  const rate     = parseFloat(document.getElementById('goal-rate').value) || 1;
+  const targetUSD = currency === 'JPY' ? amount/rate : amount;
+  const lessonsN  = parseFloat(document.getElementById('goal-lessons').value) || 1;
+  const active    = students.filter(s => s.status !== 'inactive');
+  const priceList = [...new Set(active.map(s => s.fee))].sort((a,b) => a-b);
+  const tbody = document.getElementById('goal-rows');
+  if (!priceList.length) {
+    tbody.innerHTML = '<tr><td colspan="3" style="color:#aaa;font-size:.82rem;padding:10px 0">生徒を追加すると自動で表示されます</td></tr>';
+    document.getElementById('goal-gap').textContent = '';
     return;
   }
-  
-  list.innerHTML = sorted.map(e => `
-    <div class="list-item">
-      <div class="item-left">
-        <span class="badge ${e.type === 'income' ? 'badge-income' : 'badge-expense'}">${e.type === 'income' ? '収入' : '経費'}</span>
-        <div class="category">${e.category}</div>
-        ${e.note ? `<div class="note">${e.note}</div>` : ''}
-        <div class="date">${e.date}</div>
-      </div>
-      <div class="item-right">
-        <div class="amount ${e.type}">${e.type === 'income' ? '+' : '-'}¥${e.amount.toLocaleString()}</div>
-      </div>
-    </div>
-  `).join('');
+  tbody.innerHTML = priceList.map(price => {
+    const n = Math.ceil(targetUSD / (price * lessonsN));
+    return `<tr><td class="num">$${price.toFixed(2)}</td><td class="num">${n}人</td><td class="num">${n*lessonsN}</td></tr>`;
+  }).join('');
+  const summary = renderSummary();
+  const gap = targetUSD - summary.totalMonthly;
+  const gapEl = document.getElementById('goal-gap');
+  const assumedFee = parseFloat(document.getElementById('goal-assumed-fee').value);
+  if (gap <= 0) {
+    gapEl.textContent = '現在の登録生徒だけで目標($' + targetUSD.toFixed(2) + ')を達成しています。';
+  } else if (!isNaN(assumedFee) && assumedFee > 0) {
+    const extra = Math.ceil(gap / (assumedFee * lessonsN));
+    gapEl.textContent = `目標まであと $${gap.toFixed(2)}。$${assumedFee.toFixed(2)} の生徒があと${extra}人いれば達成できます。`;
+  } else {
+    gapEl.textContent = `目標まであと $${gap.toFixed(2)}。「あと何人必要か計算する単価」を入れると、必要な人数が表示されます。`;
+  }
 }
 
-function exportCSV() {
-  const header = '日付,種別,金額,カテゴリ,メモ\n';
-  const rows = entries.map(e => `${e.date},${e.type === 'income' ? '収入' : '経費'},${e.amount},${e.category},${e.note || ''}`).join('\n');
-  const blob = new Blob(['\uFEFF' + header + rows], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = '経費管理_' + currentMonth.getFullYear() + (currentMonth.getMonth()+1) + '.csv';
-  a.click();
+document.getElementById('btn-calc-goal').addEventListener('click', () => { renderGoal(); scheduleSave(); });
+
+// 月次記録
+function initSnapMonth() {
+  const now = new Date();
+  document.getElementById('snap-month').value = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
 }
 
-document.getElementById('i-date').value = today();
-document.getElementById('r-date') && (document.getElementById('r-date').value = today());
-renderSummary();
+document.getElementById('btn-snap').addEventListener('click', () => {
+  const month = document.getElementById('snap-month').value;
+  if (!month) return;
+  const existing = snapshots.findIndex(s => s.month === month);
+  if (existing !== -1 && !confirm(month + ' の記録が既にあります。上書きしますか？')) return;
+  const active = students.filter(s => s.status !== 'inactive');
+  const count  = active.length;
+  const totalMonthly = active.reduce((sum,s) => sum + s.fee*s.lessons, 0);
+  const totalLessons = active.reduce((sum,s) => sum + s.lessons, 0);
+  const avgFee  = count ? active.reduce((sum,s) => sum+s.fee, 0)/count : 0;
+  const wAvgFee = totalLessons ? totalMonthly/totalLessons : 0;
+  const snap = { month, count, totalMonthly, avgFee, wAvgFee };
+  if (existing !== -1) snapshots[existing] = snap; else snapshots.push(snap);
+  snapshots.sort((a,b) => b.month.localeCompare(a.month));
+  save();
+  renderSnapshots();
+  document.getElementById('autosave-status').textContent = '✓ ' + month + ' の記録を保存しました';
+});
+
+function deleteSnapshot(month) {
+  snapshots = snapshots.filter(s => s.month !== month);
+  save();
+  renderSnapshots();
+}
+window._deleteSnap = deleteSnapshot;
+
+function diffBadge(cur, prev, prefix='', dec=0) {
+  if (prev === undefined) return '<span class="diff-eq">—</span>';
+  const d = cur - prev, sign = d > 0 ? '+' : '';
+  const cls = d > 0 ? 'diff-up' : d < 0 ? 'diff-down' : 'diff-eq';
+  return `<span class="${cls}">${sign}${prefix}${d.toFixed(dec)}</span>`;
+}
+
+function renderSnapshots() {
+  const tbody = document.getElementById('snap-rows');
+  const empty = document.getElementById('snap-empty');
+  const table = document.getElementById('snap-table');
+  tbody.innerHTML = '';
+  if (!snapshots.length) { table.style.display = 'none'; empty.style.display = 'block'; return; }
+  table.style.display = ''; empty.style.display = 'none';
+  snapshots.forEach((snap, i) => {
+    const prev = snapshots[i+1];
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="record-date">${snap.month}</td>
+      <td class="num">${snap.count}名</td><td class="num">$${snap.totalMonthly.toFixed(2)}</td>
+      <td class="num">$${snap.avgFee.toFixed(2)}</td>
+      <td class="num">${diffBadge(snap.count, prev?.count, '', 0)}</td>
+      <td class="num">${diffBadge(snap.totalMonthly, prev?.totalMonthly, '$', 2)}</td>
+      <td><button class="ghost" onclick="window._deleteSnap('${snap.month}')">削除</button></td>`;
+    tbody.appendChild(tr);
+  });
+  renderCharts();
+}
+
+// Chart.jsインスタンスをキャッシュして毎回destroyしてから再作成する
+let chartRevenue = null;
+let chartCount   = null;
+
+function renderCharts() {
+  const area = document.getElementById('chart-area');
+  if (!snapshots.length) { area.style.display = 'none'; return; }
+  area.style.display = '';
+
+  // スナップショットは新しい順なので、グラフ用に古い順に並べ直す
+  const ordered = [...snapshots].reverse();
+  const labels   = ordered.map(s => s.month);
+  const revenues = ordered.map(s => s.totalMonthly);
+  const counts   = ordered.map(s => s.count);
+
+  // 前月比で色を変える: 増加=緑、減少=赤、変化なし=グレー
+  function barColors(data) {
+    return data.map((v, i) => {
+      if (i === 0) return 'rgba(166,64,47,0.6)';
+      return v > data[i-1] ? 'rgba(74,138,74,0.7)' : v < data[i-1] ? 'rgba(179,51,51,0.7)' : 'rgba(166,64,47,0.4)';
+    });
+  }
+  function borderColors(data) {
+    return data.map((v, i) => {
+      if (i === 0) return '#a6402f';
+      return v > data[i-1] ? '#4a8a4a' : v < data[i-1] ? '#b33333' : '#a6402f';
+    });
+  }
+
+  const chartOpts = {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { font: { size: 10 } } },
+      y: { beginAtZero: true, ticks: { font: { size: 10 } } }
+    }
+  };
+
+  // 月収グラフ
+  const ctxR = document.getElementById('chart-revenue').getContext('2d');
+  if (chartRevenue) chartRevenue.destroy();
+  chartRevenue = new Chart(ctxR, {
+    type: 'bar',
+    data: { labels, datasets: [{ data: revenues, backgroundColor: barColors(revenues), borderColor: borderColors(revenues), borderWidth: 1.5, borderRadius: 3 }] },
+    options: { ...chartOpts, scales: { x: chartOpts.scales.x, y: { ...chartOpts.scales.y, ticks: { ...chartOpts.scales.y.ticks, callback: v => '$' + v } } } }
+  });
+
+  // 生徒数グラフ
+  const ctxC = document.getElementById('chart-count').getContext('2d');
+  if (chartCount) chartCount.destroy();
+  chartCount = new Chart(ctxC, {
+    type: 'bar',
+    data: { labels, datasets: [{ data: counts, backgroundColor: barColors(counts), borderColor: borderColors(counts), borderWidth: 1.5, borderRadius: 3 }] },
+    options: { ...chartOpts, scales: { x: chartOpts.scales.x, y: { ...chartOpts.scales.y, stepSize: 1, ticks: { ...chartOpts.scales.y.ticks, callback: v => Number.isInteger(v) ? v + '名' : '' } } } }
+  });
+}
+
+// ダウンロード・共有
+function buildSnapshot() {
+  return { generatedAt: new Date().toISOString(), students, snapshots, summary: renderSummary(), goal: readGoalFields() };
+}
+function buildText(snap) {
+  const s = snap.summary;
+  return `生徒情報共有ツール サマリー (${new Date(snap.generatedAt).toLocaleDateString('ja-JP')})\n生徒数: ${s.count}名\n月収: $${s.totalMonthly.toFixed(2)}\n週収: $${s.weekly.toFixed(2)}\n平均単価: $${s.avgFee.toFixed(2)}`;
+}
+function downloadSnap(snap) {
+  const blob = new Blob([JSON.stringify(snap, null, 2)], { type:'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = `student-revenue-${new Date().toISOString().slice(0,10)}.json`; a.click();
+  URL.revokeObjectURL(url);
+}
+document.getElementById('btn-dl').addEventListener('click', () => downloadSnap(buildSnapshot()));
+document.getElementById('btn-share').addEventListener('click', async () => {
+  const snap = buildSnapshot();
+  const file = new File([JSON.stringify(snap,null,2)], `student-revenue-${new Date().toISOString().slice(0,10)}.json`, { type:'application/json' });
+  if (navigator.canShare?.({ files:[file] })) {
+    await navigator.share({ title:'生徒情報共有ツール サマリー', text: buildText(snap), files:[file] }).catch(()=>{});
+  } else { downloadSnap(snap); }
+});
+
+// window経由でonclick属性から呼び出せるよう登録
+window._saveEdit    = saveEdit;
+window._cancelEdit  = cancelEdit;
+window._toggleEdit  = toggleEdit;
+window._toggleDetail= toggleDetail;
+window._quit        = quitStudent;
+window._reactivate  = reactivateStudent;
+window._remove      = removeStudent;
+window._update      = updateField;
+window._addNeg      = addNegotiation;
+window._removeNeg   = removeNegotiation;
+
+function render() {
+  save();
+  renderRows();
+  renderSummary();
+  renderGoal();
+}
+
+initSnapMonth();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+}
 </script>
 </body>
 </html>

@@ -426,7 +426,7 @@ auth.onAuthStateChanged( async (user) => {
 
   // ユーザーのロールを取得
   const profileSnap = await db.collection('users').doc(user.uid).get();
-  currentUserRole = profileSnap.exists ? (profileSnap.data().role || 'client') : 'client';
+  currentUserRole = profileSnap.exists() ? (profileSnap.data().role || 'client') : 'client';
 
   if (currentUserRole === 'admin') {
     // 管理者 → 管理者ダッシュボードへ

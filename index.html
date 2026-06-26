@@ -313,7 +313,7 @@ function targetUid() { return viewingUid || currentUser?.uid; }
 async function loadData() {
   const uid = targetUid();
   if (!uid) return;
-  const snap =   const d = snap.exists ? snap.data() : {};
+  const d = {};
   students  = d.students  || [];
   snapshots = d.snapshots || [];
 

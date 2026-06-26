@@ -313,8 +313,7 @@ function targetUid() { return viewingUid || currentUser?.uid; }
 async function loadData() {
   const uid = targetUid();
   if (!uid) return;
-  const snap = await db.collection('userData').doc(uid).get();
-  const d = snap.exists ? snap.data() : {};
+  const snap =   const d = snap.exists ? snap.data() : {};
   students  = d.students  || [];
   snapshots = d.snapshots || [];
 
@@ -341,8 +340,7 @@ async function flushSave() {
   if (!uid) return;
   const goal = readGoalFields();
   try {
-    await db.collection('userData').doc(uid).set({ students, snapshots, goal, updatedAt: new Date().toISOString() });
-    const t = new Date().toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' });
+        const t = new Date().toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' });
     document.getElementById('autosave-status').textContent = '✓ 保存済み ' + t;
     document.getElementById('sync-status').textContent = '☁ クラウド同期済み';
   } catch(e) {
@@ -393,8 +391,7 @@ document.getElementById('btn-signup').addEventListener('click', async () => {
   try {
     const cred = await auth.createUserWithEmailAndPassword(email, pw);
     // 新規ユーザーのプロファイルをFirestoreに作成(ロールはclient)
-    await db.collection('users').doc(cred.user.uid).set({
-      email, displayName: email.split('@')[0], role: 'client', createdAt: new Date().toISOString()
+          email, displayName: email.split('@')[0], role: 'client', createdAt: new Date().toISOString()
     });
   } catch(e) {
     errEl.textContent = '登録に失敗しました: ' + friendlyError(e.code);
@@ -424,9 +421,7 @@ auth.onAuthStateChanged( async (user) => {
   viewingName = '';
 
   // ユーザーのロールを取得
-  const profileSnap = await db.collection('users').doc(user.uid).get();
-  currentUserRole = profileSnap.exists() ? (profileSnap.data().role || 'client') : 'client';
-
+  const 
   if (currentUserRole === 'admin') {
     // 管理者 → 管理者ダッシュボードへ
     document.getElementById('admin-name').textContent = user.email;
@@ -461,11 +456,8 @@ async function showAppForUser(emailLabel, adminViewingUid) {
 
 // ── 管理者: クライアント一覧を読み込む ──
 async function loadClientList() {
-  const querySnap = await db.collection('users').get();
-  const listEl = document.getElementById('client-list-items');
-  listEl.innerHTML = '';
-  querySnap.forEach(docSnap => {
-    const d = docSnap.data();
+    listEl.innerHTML = '';
+      const d = docSnap.data();
     if (d.role === 'admin') return; // 管理者自身は除外
     const item = document.createElement('div');
     item.className = 'client-item';

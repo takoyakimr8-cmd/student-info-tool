@@ -277,17 +277,11 @@ tr.inactive td.name{text-decoration:line-through;}
 </div>
 
 <!-- Firebase SDK (モジュール形式) -->
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-         signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, setDoc, updateDoc, collection,
-         getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  ★ ここにFirebaseの設定を貼り付けてください ★
-//  Firebase Console → プロジェクト設定 → マイアプリ → CDN
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+<!-- Firebase compat SDK (Safari対応) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
 const firebaseConfig = {
   apiKey:            "AIzaSyBNbOfcSIjgXuPXlDt5B2_ksUcBoCRlo8U",
   authDomain:        "student-info-tool.firebaseapp.com",
@@ -296,11 +290,10 @@ const firebaseConfig = {
   messagingSenderId: "545050196777",
   appId:             "1:545050196777:web:b03bcd194473c688d89538"
 };
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const app  = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db   = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
 
 // ── 状態変数 ──
 let currentUser = null;      // 現在ログイン中のFirebase Userオブジェクト
@@ -321,8 +314,8 @@ function targetUid() { return viewingUid || currentUser?.uid; }
 async function loadData() {
   const uid = targetUid();
   if (!uid) return;
-  const snap = await getDoc(doc(db, 'userData', uid));
-  const d = snap.exists() ? snap.data() : {};
+  const snap = await db.collection('userData').doc(uid).get();
+  const d = snap.exists ? snap.data() : {};
   students  = d.students  || [];
   snapshots = d.snapshots || [];
 
@@ -349,7 +342,7 @@ async function flushSave() {
   if (!uid) return;
   const goal = readGoalFields();
   try {
-    await setDoc(doc(db, 'userData', uid), { students, snapshots, goal, updatedAt: new Date().toISOString() });
+    await db.collection('userData').doc(uid).set({ students, snapshots, goal, updatedAt: new Date().toISOString() });
     const t = new Date().toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' });
     document.getElementById('autosave-status').textContent = '✓ 保存済み ' + t;
     document.getElementById('sync-status').textContent = '☁ クラウド同期済み';
@@ -386,7 +379,7 @@ document.getElementById('btn-login').addEventListener('click', async () => {
   const errEl = document.getElementById('login-err');
   errEl.textContent = '';
   try {
-    await signInWithEmailAndPassword(auth, email, pw);
+    await auth.signInWithEmailAndPassword(email, pw);
   } catch(e) {
     errEl.textContent = 'ログインに失敗しました: ' + friendlyError(e.code);
   }
@@ -399,9 +392,9 @@ document.getElementById('btn-signup').addEventListener('click', async () => {
   errEl.textContent = '';
   if (pw.length < 6) { errEl.textContent = 'パスワードは6文字以上にしてください'; return; }
   try {
-    const cred = await createUserWithEmailAndPassword(auth, email, pw);
+    const cred = await auth.createUserWithEmailAndPassword(email, pw);
     // 新規ユーザーのプロファイルをFirestoreに作成(ロールはclient)
-    await setDoc(doc(db, 'users', cred.user.uid), {
+    await db.collection('users').doc(cred.user.uid).set({
       email, displayName: email.split('@')[0], role: 'client', createdAt: new Date().toISOString()
     });
   } catch(e) {
@@ -421,7 +414,7 @@ function friendlyError(code) {
 }
 
 // ── 認証状態の変化を監視 ──
-onAuthStateChanged(auth, async (user) => {
+auth.onAuthStateChanged( async (user) => {
   if (!user) {
     // 未ログイン → ログイン画面へ
     showScreen('login');
@@ -432,7 +425,7 @@ onAuthStateChanged(auth, async (user) => {
   viewingName = '';
 
   // ユーザーのロールを取得
-  const profileSnap = await getDoc(doc(db, 'users', user.uid));
+  const profileSnap = await db.collection('users').doc(user.uid).get();
   currentUserRole = profileSnap.exists() ? (profileSnap.data().role || 'client') : 'client';
 
   if (currentUserRole === 'admin') {
@@ -469,7 +462,7 @@ async function showAppForUser(emailLabel, adminViewingUid) {
 
 // ── 管理者: クライアント一覧を読み込む ──
 async function loadClientList() {
-  const querySnap = await getDocs(collection(db, 'users'));
+  const querySnap = await db.collection('users').get();
   const listEl = document.getElementById('client-list-items');
   listEl.innerHTML = '';
   querySnap.forEach(docSnap => {
@@ -502,8 +495,8 @@ document.getElementById('btn-back-admin').addEventListener('click', () => {
 });
 
 // ログアウトボタン (アプリ画面)
-document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
-document.getElementById('btn-admin-logout').addEventListener('click', () => signOut(auth));
+document.getElementById('btn-logout').addEventListener('click', () => auth.signOut());
+document.getElementById('btn-admin-logout').addEventListener('click', () => auth.signOut());
 
 // ── 画面切り替え ──
 function showScreen(name) {

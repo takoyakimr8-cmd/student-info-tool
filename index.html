@@ -292,7 +292,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-const db   = null;
+
 
 // ── 状態変数 ──
 let currentUser = null;      // 現在ログイン中のFirebase Userオブジェクト
@@ -308,10 +308,10 @@ let snapshots = [];
 let saveTimer = null;
 
 // ── Firestore読み書き ──
-function targetUid() { return viewingUid || currentUser?.uid; }
+
 
 async function loadData() {
-  const uid = targetUid();
+  const uid = viewingUid || currentUser?.uid;
   if (!uid) return;
   const d = {};
   students  = d.students  || [];
@@ -336,7 +336,7 @@ function scheduleSave() {
 }
 
 async function flushSave() {
-  const uid = targetUid();
+  const uid = viewingUid || currentUser?.uid;
   if (!uid) return;
   const goal = readGoalFields();
   try {
